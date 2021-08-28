@@ -30,11 +30,14 @@ export class EvmRpcProvider {
     await this.#api.disconnect();
   };
 
-  chainId = async () => {
-    return '0';
+  chainId = async (): Promise<number> => {
+    return 42;
   };
 
-  blockNumber = async () => {
-    return '0';
+  getBlockNumber = async (): Promise<number> => {
+    const hash = await this.#api.rpc.chain.getFinalizedHead();
+    const header = await this.#api.rpc.chain.getHeader(hash);
+
+    return header.number.toNumber();
   };
 }

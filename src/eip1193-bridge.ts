@@ -1,4 +1,5 @@
 import EventEmitter from 'events';
+import { hexValue } from '@ethersproject/bytes';
 import { EvmRpcProvider } from './evm-rpc-provider';
 
 export class Eip1193Bridge extends EventEmitter {
@@ -15,12 +16,16 @@ export class Eip1193Bridge extends EventEmitter {
 
   async send(method: string, params?: Array<any>): Promise<any> {
     switch (method) {
+      case 'eth_blockNumber': {
+        const number = await this.#provider.getBlockNumber();
+        return hexValue(number);
+      }
       case 'eth_chainId': {
-        return this.#provider.chainId();
+        const chainId = await this.#provider.chainId();
+        return hexValue(chainId);
       }
       case 'eth_gasPrice':
       case 'eth_accounts':
-      case 'eth_blockNumber':
       case 'eth_getBalance':
       case 'eth_getStorageAt':
       case 'eth_getTransactionCount':
