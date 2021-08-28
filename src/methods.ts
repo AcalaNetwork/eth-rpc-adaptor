@@ -4,6 +4,9 @@ import { EvmRpcProvider } from './evm-rpc-provider';
 
 export const createMethodMapping = async (): Promise<MethodMapping> => {
   const provider = new EvmRpcProvider();
+
+  await provider.isReady();
+
   const bridge = new Eip1193Bridge(provider);
 
   return {

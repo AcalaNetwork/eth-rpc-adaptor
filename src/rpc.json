@@ -11,6 +11,19 @@
   },
   "methods": [
     {
+      "name": "eth_blockNumber",
+      "summary": "Returns the number of most recent block.",
+      "params": [],
+      "result": {
+        "name": "Block number",
+        "schema": {
+          "title": "hex encoded unsigned integer",
+          "type": "string",
+          "pattern": "^0x[0-9a-f]+$"
+        }
+      }
+    },
+    {
       "name": "eth_chainId",
       "summary": "Returns the currently configured chain ID, a value used in replay-protected transaction signing as introduced by EIP-155.",
       "params": [],
@@ -1121,19 +1134,7 @@
         }
       }
     },
-    {
-      "name": "eth_blockNumber",
-      "summary": "Returns the number of most recent block.",
-      "params": [],
-      "result": {
-        "name": "Block number",
-        "schema": {
-          "title": "hex encoded unsigned integer",
-          "type": "string",
-          "pattern": "^0x[0-9a-f]+$"
-        }
-      }
-    },
+    
     {
       "name": "eth_call",
       "summary": "Executes a new message call immediately without creating a transaction on the block chain.",
