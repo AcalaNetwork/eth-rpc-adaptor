@@ -1,8 +1,8 @@
+import { OpenrpcDocument } from '@open-rpc/meta-schema';
+import { parseOpenRPCDocument } from '@open-rpc/schema-utils-js';
 import { Server, ServerOptions } from '@open-rpc/server-js';
 import { HTTPServerTransportOptions } from '@open-rpc/server-js/build/transports/http';
 import { WebSocketServerTransportOptions } from '@open-rpc/server-js/build/transports/websocket';
-import { OpenrpcDocument } from '@open-rpc/meta-schema';
-import { parseOpenRPCDocument } from '@open-rpc/schema-utils-js';
 import { createMethodMapping } from './methods';
 import doc from './rpc.json';
 

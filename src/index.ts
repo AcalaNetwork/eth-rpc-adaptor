@@ -1,3 +1,6 @@
-import { start } from "./server";
+import { start } from './server';
 
-start()
+start().catch((e) => {
+  console.log(e);
+  process.exit(1);
+});
