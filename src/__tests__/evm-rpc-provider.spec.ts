@@ -12,10 +12,10 @@ describe('EvmRpcProvider', () => {
 
   it('connect random', async () => {
     try {
-      const provider = new EvmRpcProvider('ws://192.168.1.177:9944');
+      const provider = new EvmRpcProvider('ws://192.-');
       await provider.isReady();
     } catch (e) {
-      expect(e).toThrow();
+      expect((e as any).type).toEqual('error');
     }
   });
 });

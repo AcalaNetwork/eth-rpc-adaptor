@@ -23,7 +23,12 @@ export class EvmRpcProvider {
   }
 
   isReady = async () => {
-    await this.#api.isReadyOrError;
+    try {
+      await this.#api.isReadyOrError;
+    } catch (e) {
+      await this.#api.disconnect();
+      throw e;
+    }
   };
 
   disconnect = async () => {
