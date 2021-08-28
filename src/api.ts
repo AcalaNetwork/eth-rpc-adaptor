@@ -7,6 +7,9 @@ export const createApi = async (endpoint?: string | string[]) => {
   if (!api) {
     api = new ApiPromise(
       options({
+        types: {
+          AtLeast64BitUnsigned: 'u128',
+        },
         provider: new WsProvider(endpoint),
       })
     );
@@ -15,7 +18,7 @@ export const createApi = async (endpoint?: string | string[]) => {
   try {
     await api.isReadyOrError;
   } catch (err) {
-    api.disconnect();
+    await api.disconnect();
     throw err;
   }
 
