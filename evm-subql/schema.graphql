@@ -1,0 +1,46 @@
+type Log @entity {
+
+  id: ID!
+
+  blockNumber: BigInt!
+
+  blockHash: String!
+
+  transactionIndex: BigInt!
+
+  removed: Boolean!
+
+  address: String!
+
+  data: String
+
+  topics: [String]!
+
+  transactionHash: String!
+
+  logIndex: BigInt!
+}
+
+
+type TransactionReceipt @entity {
+  to: String!
+  from: String!
+  contractAddress: String!
+  transactionIndex: BigInt!
+  root: String
+  gasUsed: BigInt!
+  logsBloom: String!
+  blockHash: String!
+  transactionHash: String!
+  logs: [Log]
+  blockNumber: BigInt!
+  confirmations: BigInt!
+  cumulativeGasUsed: BigInt!
+  effectiveGasPrice: BigInt!
+  byzantium: Boolean
+  type: BigInt!
+  status: BigInt
+}
+
+
+

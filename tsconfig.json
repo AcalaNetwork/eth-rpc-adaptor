@@ -28,6 +28,7 @@
         "benchmarks/*",
         "migrations/*",
         "**/e2e/*",
-        "**/tests/*"
+        "**/tests/*",
+        "evm-subql"
     ]
 }
