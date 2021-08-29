@@ -1,6 +1,6 @@
 import { EvmRpcProvider } from '../evm-rpc-provider';
 
-const endpoint = 'ws://192.168.50.20:9944';
+const endpoint = 'wss://mandala6.laminar.codes/';
 
 const provider = new EvmRpcProvider(endpoint);
 
@@ -24,8 +24,23 @@ describe('rpc test', () => {
   });
 
   it('getCode', async () => {
-    const result = await provider.getCode('0x0000000000000000000000000000000000000802');
+    const result1 = await provider.getCode('0x1000000000000000000000000000000000000802');
+
+    expect(result1).toBe('0x');
+
+    const result2 = await provider.getCode('0x0000000000000000000000000000000000000802');
+
+    expect(result2.length > 2).toBeTruthy;
+  });
+
+  it('call', async () => {
+    const result = await provider.call({
+      data: '0x70a0823100000000000000000000000033f9440ff970496a09e391f3773a66f1e98eb13c',
+      from: '0x33f9440ff970496a09e391f3773a66f1e98eb13c',
+      to: '0xbffb25b73c6a0581a28988ce34c9f240d525b152',
+    });
     console.log(result);
+
     expect(result).toBeDefined();
   });
 });

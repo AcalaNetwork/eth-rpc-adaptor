@@ -25,9 +25,12 @@ export class Eip1193Bridge extends EventEmitter {
         return hexValue(chainId);
       }
       case 'eth_getTransactionCount': {
-        console.log(params?.[0], params?.[1])
         const count = await this.#provider.getTransactionCount(params?.[0], params?.[1]);
         return hexValue(count);
+      }
+      case 'eth_getCode': {
+        const code = await this.#provider.getCode(params?.[0], params?.[1]);
+        return code;
       }
       case 'eth_call': {
         // return this.#provider.call();
@@ -41,7 +44,7 @@ export class Eip1193Bridge extends EventEmitter {
 
       case 'eth_getBlockTransactionCountByHash':
       case 'eth_getBlockTransactionCountByNumber':
-      case 'eth_getCode':
+      
       case 'eth_sendRawTransaction':
       case 'eth_estimateGas':
       case 'eth_getBlockByHash':
