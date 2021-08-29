@@ -24,16 +24,25 @@ export class Eip1193Bridge extends EventEmitter {
         const chainId = await this.#provider.chainId();
         return hexValue(chainId);
       }
+      case 'eth_getTransactionCount': {
+        console.log(params?.[0], params?.[1])
+        const count = await this.#provider.getTransactionCount(params?.[0], params?.[1]);
+        return hexValue(count);
+      }
+      case 'eth_call': {
+        // return this.#provider.call();
+        // const req = ethers.providers.JsonRpcProvider.hexlifyTransaction(params[0]);
+        // return await this.#provider.call(req, params[1]);
+      }
       case 'eth_gasPrice':
       case 'eth_accounts':
       case 'eth_getBalance':
       case 'eth_getStorageAt':
-      case 'eth_getTransactionCount':
+
       case 'eth_getBlockTransactionCountByHash':
       case 'eth_getBlockTransactionCountByNumber':
       case 'eth_getCode':
       case 'eth_sendRawTransaction':
-      case 'eth_call':
       case 'eth_estimateGas':
       case 'eth_getBlockByHash':
       case 'eth_getBlockByNumber':

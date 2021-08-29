@@ -3,7 +3,7 @@ import { Eip1193Bridge } from './eip1193-bridge';
 import { EvmRpcProvider } from './evm-rpc-provider';
 
 export const createMethodMapping = async (): Promise<MethodMapping> => {
-  const provider = new EvmRpcProvider();
+  const provider = new EvmRpcProvider('wss://mandala6.laminar.codes/');
 
   await provider.isReady();
 
@@ -11,5 +11,9 @@ export const createMethodMapping = async (): Promise<MethodMapping> => {
 
   return {
     eth_chainId: () => bridge.send('eth_chainId'),
+    eth_blockNumber: () => bridge.send('eth_blockNumber'),
+    eth_getTransactionCount: (...params) => {
+      return bridge.send('eth_getTransactionCount', params);
+    },
   };
 };

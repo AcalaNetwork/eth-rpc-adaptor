@@ -40,6 +40,317 @@
       }
     },
     {
+      "name": "eth_call",
+      "summary": "Executes a new message call immediately without creating a transaction on the block chain.",
+      "params": [
+        {
+          "name": "Transaction",
+          "required": true,
+          "schema": {
+            "title": "Transaction object with sender",
+            "type": "object",
+            "required": [
+              "from"
+            ],
+            "oneOf": [
+              {
+                "type": "object",
+                "title": "EIP-1559 transaction.",
+                "required": [
+                  "type",
+                  "nonce",
+                  "gas",
+                  "value",
+                  "input",
+                  "maxFeePerGas",
+                  "maxPriorityFeePerGas",
+                  "chainId",
+                  "accessList"
+                ],
+                "properties": {
+                  "type": {
+                    "title": "type",
+                    "type": "string",
+                    "pattern": "^0x([a-fA-F0-9]?){1,2}$"
+                  },
+                  "nonce": {
+                    "title": "nonce",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$"
+                  },
+                  "to": {
+                    "title": "to address",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{40}$"
+                  },
+                  "gas": {
+                    "title": "gas limit",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$"
+                  },
+                  "value": {
+                    "title": "value",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$"
+                  },
+                  "input": {
+                    "title": "input data",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$"
+                  },
+                  "maxPriorityFeePerGas": {
+                    "title": "max priority fee per gas",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$",
+                    "description": "Maximum fee per gas the sender is willing to pay to miners in wei"
+                  },
+                  "maxFeePerGas": {
+                    "title": "max fee per gas",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$",
+                    "description": "The maximum total fee per gas the sender is willing to pay (includes the network / base fee and miner / priority fee) in wei"
+                  },
+                  "accessList": {
+                    "title": "accessList",
+                    "type": "object",
+                    "description": "EIP-2930 access list",
+                    "items": {
+                      "title": "Access list entry",
+                      "type": "object",
+                      "properties": {
+                        "address": {
+                          "title": "hex encoded address",
+                          "type": "string",
+                          "pattern": "^0x[0-9a-fA-F]{40}$"
+                        },
+                        "storageKeys": {
+                          "type": "array",
+                          "items": {
+                            "title": "32 byte hex value",
+                            "type": "string",
+                            "pattern": "^0x[0-9a-f]{64}$"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "chainId": {
+                    "title": "chainId",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$",
+                    "description": "Chain ID that this transaction is valid on."
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "title": "EIP-2930 transaction.",
+                "required": [
+                  "type",
+                  "nonce",
+                  "gas",
+                  "value",
+                  "input",
+                  "gasPrice",
+                  "chainId",
+                  "accessList"
+                ],
+                "properties": {
+                  "type": {
+                    "title": "type",
+                    "type": "string",
+                    "pattern": "^0x([a-fA-F0-9]?){1,2}$"
+                  },
+                  "nonce": {
+                    "title": "nonce",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$"
+                  },
+                  "to": {
+                    "title": "to address",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{40}$"
+                  },
+                  "gas": {
+                    "title": "gas limit",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$"
+                  },
+                  "value": {
+                    "title": "value",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$"
+                  },
+                  "input": {
+                    "title": "input data",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$"
+                  },
+                  "gasPrice": {
+                    "title": "gas price",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$",
+                    "description": "The gas price willing to be paid by the sender in wei"
+                  },
+                  "accessList": {
+                    "title": "accessList",
+                    "type": "object",
+                    "description": "EIP-2930 access list",
+                    "items": {
+                      "title": "Access list entry",
+                      "type": "object",
+                      "properties": {
+                        "address": {
+                          "title": "hex encoded address",
+                          "type": "string",
+                          "pattern": "^0x[0-9a-fA-F]{40}$"
+                        },
+                        "storageKeys": {
+                          "type": "array",
+                          "items": {
+                            "title": "32 byte hex value",
+                            "type": "string",
+                            "pattern": "^0x[0-9a-f]{64}$"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "chainId": {
+                    "title": "chainId",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$",
+                    "description": "Chain ID that this transaction is valid on."
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "title": "Legacy transaction.",
+                "required": [
+                  "type",
+                  "nonce",
+                  "gas",
+                  "value",
+                  "input",
+                  "gasPrice"
+                ],
+                "properties": {
+                  "type": {
+                    "title": "type",
+                    "type": "string",
+                    "pattern": "^0x([a-fA-F0-9]?){1,2}$"
+                  },
+                  "nonce": {
+                    "title": "nonce",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$"
+                  },
+                  "to": {
+                    "title": "to address",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{40}$"
+                  },
+                  "gas": {
+                    "title": "gas limit",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$"
+                  },
+                  "value": {
+                    "title": "value",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$"
+                  },
+                  "input": {
+                    "title": "input data",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$"
+                  },
+                  "gasPrice": {
+                    "title": "gas price",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$",
+                    "description": "The gas price willing to be paid by the sender in wei"
+                  },
+                  "chainId": {
+                    "title": "chainId",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$",
+                    "description": "Chain ID that this transaction is valid on."
+                  }
+                }
+              }
+            ],
+            "properties": {
+              "from": {
+                "title": "from",
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{40}$"
+              }
+            }
+          }
+        }
+      ],
+      "result": {
+        "name": "Return data",
+        "schema": {
+          "title": "hex encoded bytes",
+          "type": "string",
+          "pattern": "^0x[0-9a-f]+$"
+        }
+      }
+    },
+    {
+      "name": "eth_getTransactionCount",
+      "summary": "Returns the number of transactions sent from an address.",
+      "params": [
+        {
+          "name": "Address",
+          "required": true,
+          "schema": {
+            "title": "hex encoded address",
+            "type": "string",
+            "pattern": "^0x[0-9a-fA-F]{40}$"
+          }
+        },
+        {
+          "name": "Block",
+          "required": true,
+          "schema": {
+            "title": "Block number or tag",
+            "oneOf": [
+              {
+                "title": "Block number",
+                "type": "string",
+                "pattern": "^0x[0-9a-f]+$"
+              },
+              {
+                "title": "Block tag",
+                "type": "string",
+                "enum": [
+                  "earliest",
+                  "latest",
+                  "pending"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "result": {
+        "name": "Transaction count",
+        "schema": {
+          "title": "Transaction count",
+          "type": "array",
+          "items": {
+            "title": "hex encoded unsigned integer",
+            "type": "string",
+            "pattern": "^0x[0-9a-f]+$"
+          }
+        }
+      }
+    },
+    {
       "name": "eth_getBlockByHash",
       "summary": "Returns information about a block by hash.",
       "params": [
@@ -264,7 +575,7 @@
                                 "address": {
                                   "title": "hex encoded address",
                                   "type": "string",
-                                  "pattern": "^0x[0-9a-f]{40}$"
+                                  "pattern": "^0x[0-9a-fA-F]{40}$"
                                 },
                                 "storageKeys": {
                                   "type": "array",
@@ -365,7 +676,7 @@
                                 "address": {
                                   "title": "hex encoded address",
                                   "type": "string",
-                                  "pattern": "^0x[0-9a-f]{40}$"
+                                  "pattern": "^0x[0-9a-fA-F]{40}$"
                                 },
                                 "storageKeys": {
                                   "type": "array",
@@ -719,7 +1030,7 @@
                                 "address": {
                                   "title": "hex encoded address",
                                   "type": "string",
-                                  "pattern": "^0x[0-9a-f]{40}$"
+                                  "pattern": "^0x[0-9a-fA-F]{40}$"
                                 },
                                 "storageKeys": {
                                   "type": "array",
@@ -820,7 +1131,7 @@
                                 "address": {
                                   "title": "hex encoded address",
                                   "type": "string",
-                                  "pattern": "^0x[0-9a-f]{40}$"
+                                  "pattern": "^0x[0-9a-fA-F]{40}$"
                                 },
                                 "storageKeys": {
                                   "type": "array",
@@ -1113,7 +1424,7 @@
         "schema": {
           "title": "hex encoded address",
           "type": "string",
-          "pattern": "^0x[0-9a-f]{40}$"
+          "pattern": "^0x[0-9a-fA-F]{40}$"
         }
       }
     },
@@ -1129,270 +1440,8 @@
           "items": {
             "title": "hex encoded address",
             "type": "string",
-            "pattern": "^0x[0-9a-f]{40}$"
+            "pattern": "^0x[0-9a-fA-F]{40}$"
           }
-        }
-      }
-    },
-    
-    {
-      "name": "eth_call",
-      "summary": "Executes a new message call immediately without creating a transaction on the block chain.",
-      "params": [
-        {
-          "name": "Transaction",
-          "required": true,
-          "schema": {
-            "title": "Transaction object with sender",
-            "type": "object",
-            "required": [
-              "from"
-            ],
-            "oneOf": [
-              {
-                "type": "object",
-                "title": "EIP-1559 transaction.",
-                "required": [
-                  "type",
-                  "nonce",
-                  "gas",
-                  "value",
-                  "input",
-                  "maxFeePerGas",
-                  "maxPriorityFeePerGas",
-                  "chainId",
-                  "accessList"
-                ],
-                "properties": {
-                  "type": {
-                    "title": "type",
-                    "type": "string",
-                    "pattern": "^0x([a-fA-F0-9]?){1,2}$"
-                  },
-                  "nonce": {
-                    "title": "nonce",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$"
-                  },
-                  "to": {
-                    "title": "to address",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]{40}$"
-                  },
-                  "gas": {
-                    "title": "gas limit",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$"
-                  },
-                  "value": {
-                    "title": "value",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$"
-                  },
-                  "input": {
-                    "title": "input data",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$"
-                  },
-                  "maxPriorityFeePerGas": {
-                    "title": "max priority fee per gas",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$",
-                    "description": "Maximum fee per gas the sender is willing to pay to miners in wei"
-                  },
-                  "maxFeePerGas": {
-                    "title": "max fee per gas",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$",
-                    "description": "The maximum total fee per gas the sender is willing to pay (includes the network / base fee and miner / priority fee) in wei"
-                  },
-                  "accessList": {
-                    "title": "accessList",
-                    "type": "object",
-                    "description": "EIP-2930 access list",
-                    "items": {
-                      "title": "Access list entry",
-                      "type": "object",
-                      "properties": {
-                        "address": {
-                          "title": "hex encoded address",
-                          "type": "string",
-                          "pattern": "^0x[0-9a-f]{40}$"
-                        },
-                        "storageKeys": {
-                          "type": "array",
-                          "items": {
-                            "title": "32 byte hex value",
-                            "type": "string",
-                            "pattern": "^0x[0-9a-f]{64}$"
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "chainId": {
-                    "title": "chainId",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$",
-                    "description": "Chain ID that this transaction is valid on."
-                  }
-                }
-              },
-              {
-                "type": "object",
-                "title": "EIP-2930 transaction.",
-                "required": [
-                  "type",
-                  "nonce",
-                  "gas",
-                  "value",
-                  "input",
-                  "gasPrice",
-                  "chainId",
-                  "accessList"
-                ],
-                "properties": {
-                  "type": {
-                    "title": "type",
-                    "type": "string",
-                    "pattern": "^0x([a-fA-F0-9]?){1,2}$"
-                  },
-                  "nonce": {
-                    "title": "nonce",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$"
-                  },
-                  "to": {
-                    "title": "to address",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]{40}$"
-                  },
-                  "gas": {
-                    "title": "gas limit",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$"
-                  },
-                  "value": {
-                    "title": "value",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$"
-                  },
-                  "input": {
-                    "title": "input data",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$"
-                  },
-                  "gasPrice": {
-                    "title": "gas price",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$",
-                    "description": "The gas price willing to be paid by the sender in wei"
-                  },
-                  "accessList": {
-                    "title": "accessList",
-                    "type": "object",
-                    "description": "EIP-2930 access list",
-                    "items": {
-                      "title": "Access list entry",
-                      "type": "object",
-                      "properties": {
-                        "address": {
-                          "title": "hex encoded address",
-                          "type": "string",
-                          "pattern": "^0x[0-9a-f]{40}$"
-                        },
-                        "storageKeys": {
-                          "type": "array",
-                          "items": {
-                            "title": "32 byte hex value",
-                            "type": "string",
-                            "pattern": "^0x[0-9a-f]{64}$"
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "chainId": {
-                    "title": "chainId",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$",
-                    "description": "Chain ID that this transaction is valid on."
-                  }
-                }
-              },
-              {
-                "type": "object",
-                "title": "Legacy transaction.",
-                "required": [
-                  "type",
-                  "nonce",
-                  "gas",
-                  "value",
-                  "input",
-                  "gasPrice"
-                ],
-                "properties": {
-                  "type": {
-                    "title": "type",
-                    "type": "string",
-                    "pattern": "^0x([a-fA-F0-9]?){1,2}$"
-                  },
-                  "nonce": {
-                    "title": "nonce",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$"
-                  },
-                  "to": {
-                    "title": "to address",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]{40}$"
-                  },
-                  "gas": {
-                    "title": "gas limit",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$"
-                  },
-                  "value": {
-                    "title": "value",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$"
-                  },
-                  "input": {
-                    "title": "input data",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$"
-                  },
-                  "gasPrice": {
-                    "title": "gas price",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$",
-                    "description": "The gas price willing to be paid by the sender in wei"
-                  },
-                  "chainId": {
-                    "title": "chainId",
-                    "type": "string",
-                    "pattern": "^0x[0-9a-f]+$",
-                    "description": "Chain ID that this transaction is valid on."
-                  }
-                }
-              }
-            ],
-            "properties": {
-              "from": {
-                "title": "from",
-                "type": "string",
-                "pattern": "^0x[0-9a-f]{40}$"
-              }
-            }
-          }
-        }
-      ],
-      "result": {
-        "name": "Return data",
-        "schema": {
-          "title": "hex encoded bytes",
-          "type": "string",
-          "pattern": "^0x[0-9a-f]+$"
         }
       }
     },
@@ -1478,7 +1527,7 @@
                         "address": {
                           "title": "hex encoded address",
                           "type": "string",
-                          "pattern": "^0x[0-9a-f]{40}$"
+                          "pattern": "^0x[0-9a-fA-F]{40}$"
                         },
                         "storageKeys": {
                           "type": "array",
@@ -1560,7 +1609,7 @@
                         "address": {
                           "title": "hex encoded address",
                           "type": "string",
-                          "pattern": "^0x[0-9a-f]{40}$"
+                          "pattern": "^0x[0-9a-fA-F]{40}$"
                         },
                         "storageKeys": {
                           "type": "array",
@@ -1806,7 +1855,7 @@
                     "items": {
                       "title": "hex encoded address",
                       "type": "string",
-                      "pattern": "^0x[0-9a-f]{40}$"
+                      "pattern": "^0x[0-9a-fA-F]{40}$"
                     }
                   }
                 ]
@@ -2109,7 +2158,7 @@
                     "items": {
                       "title": "hex encoded address",
                       "type": "string",
-                      "pattern": "^0x[0-9a-f]{40}$"
+                      "pattern": "^0x[0-9a-fA-F]{40}$"
                     }
                   }
                 ]
@@ -2344,7 +2393,7 @@
           "schema": {
             "title": "hex encoded address",
             "type": "string",
-            "pattern": "^0x[0-9a-f]{40}$"
+            "pattern": "^0x[0-9a-fA-F]{40}$"
           }
         },
         {
@@ -2448,7 +2497,7 @@
                         "address": {
                           "title": "hex encoded address",
                           "type": "string",
-                          "pattern": "^0x[0-9a-f]{40}$"
+                          "pattern": "^0x[0-9a-fA-F]{40}$"
                         },
                         "storageKeys": {
                           "type": "array",
@@ -2530,7 +2579,7 @@
                         "address": {
                           "title": "hex encoded address",
                           "type": "string",
-                          "pattern": "^0x[0-9a-f]{40}$"
+                          "pattern": "^0x[0-9a-fA-F]{40}$"
                         },
                         "storageKeys": {
                           "type": "array",
@@ -2637,7 +2686,7 @@
           "schema": {
             "title": "hex encoded address",
             "type": "string",
-            "pattern": "^0x[0-9a-f]{40}$"
+            "pattern": "^0x[0-9a-fA-F]{40}$"
           }
         },
         {
@@ -2683,7 +2732,7 @@
           "schema": {
             "title": "hex encoded address",
             "type": "string",
-            "pattern": "^0x[0-9a-f]{40}$"
+            "pattern": "^0x[0-9a-fA-F]{40}$"
           }
         },
         {
@@ -2729,56 +2778,6 @@
       }
     },
     {
-      "name": "eth_getTransactionCount",
-      "summary": "Returns the number of transactions sent from an address.",
-      "params": [
-        {
-          "name": "Address",
-          "required": true,
-          "schema": {
-            "title": "hex encoded address",
-            "type": "string",
-            "pattern": "^0x[0-9a-f]{40}$"
-          }
-        },
-        {
-          "name": "Block",
-          "required": true,
-          "schema": {
-            "title": "Block number or tag",
-            "oneOf": [
-              {
-                "title": "Block number",
-                "type": "string",
-                "pattern": "^0x[0-9a-f]+$"
-              },
-              {
-                "title": "Block tag",
-                "type": "string",
-                "enum": [
-                  "earliest",
-                  "latest",
-                  "pending"
-                ]
-              }
-            ]
-          }
-        }
-      ],
-      "result": {
-        "name": "Transaction count",
-        "schema": {
-          "title": "Transaction count",
-          "type": "array",
-          "items": {
-            "title": "hex encoded unsigned integer",
-            "type": "string",
-            "pattern": "^0x[0-9a-f]+$"
-          }
-        }
-      }
-    },
-    {
       "name": "eth_getCode",
       "summary": "Returns code at a given address.",
       "params": [
@@ -2788,7 +2787,7 @@
           "schema": {
             "title": "hex encoded address",
             "type": "string",
-            "pattern": "^0x[0-9a-f]{40}$"
+            "pattern": "^0x[0-9a-fA-F]{40}$"
           }
         },
         {
@@ -2906,7 +2905,7 @@
                         "address": {
                           "title": "hex encoded address",
                           "type": "string",
-                          "pattern": "^0x[0-9a-f]{40}$"
+                          "pattern": "^0x[0-9a-fA-F]{40}$"
                         },
                         "storageKeys": {
                           "type": "array",
@@ -2988,7 +2987,7 @@
                         "address": {
                           "title": "hex encoded address",
                           "type": "string",
-                          "pattern": "^0x[0-9a-f]{40}$"
+                          "pattern": "^0x[0-9a-fA-F]{40}$"
                         },
                         "storageKeys": {
                           "type": "array",
@@ -3206,7 +3205,7 @@
                       "address": {
                         "title": "hex encoded address",
                         "type": "string",
-                        "pattern": "^0x[0-9a-f]{40}$"
+                        "pattern": "^0x[0-9a-fA-F]{40}$"
                       },
                       "storageKeys": {
                         "type": "array",
@@ -3307,7 +3306,7 @@
                       "address": {
                         "title": "hex encoded address",
                         "type": "string",
-                        "pattern": "^0x[0-9a-f]{40}$"
+                        "pattern": "^0x[0-9a-fA-F]{40}$"
                       },
                       "storageKeys": {
                         "type": "array",
@@ -3556,7 +3555,7 @@
                       "address": {
                         "title": "hex encoded address",
                         "type": "string",
-                        "pattern": "^0x[0-9a-f]{40}$"
+                        "pattern": "^0x[0-9a-fA-F]{40}$"
                       },
                       "storageKeys": {
                         "type": "array",
@@ -3657,7 +3656,7 @@
                       "address": {
                         "title": "hex encoded address",
                         "type": "string",
-                        "pattern": "^0x[0-9a-f]{40}$"
+                        "pattern": "^0x[0-9a-fA-F]{40}$"
                       },
                       "storageKeys": {
                         "type": "array",
@@ -3906,7 +3905,7 @@
                       "address": {
                         "title": "hex encoded address",
                         "type": "string",
-                        "pattern": "^0x[0-9a-f]{40}$"
+                        "pattern": "^0x[0-9a-fA-F]{40}$"
                       },
                       "storageKeys": {
                         "type": "array",
@@ -4007,7 +4006,7 @@
                       "address": {
                         "title": "hex encoded address",
                         "type": "string",
-                        "pattern": "^0x[0-9a-f]{40}$"
+                        "pattern": "^0x[0-9a-fA-F]{40}$"
                       },
                       "storageKeys": {
                         "type": "array",

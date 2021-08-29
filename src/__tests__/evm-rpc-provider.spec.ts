@@ -1,6 +1,6 @@
 import { EvmRpcProvider } from '../evm-rpc-provider';
 
-const endpoint = 'ws://192.168.50.20:9944';
+const endpoint = 'wss://mandala6.laminar.codes/';
 
 describe('EvmRpcProvider', () => {
   it('connect chain', async () => {
