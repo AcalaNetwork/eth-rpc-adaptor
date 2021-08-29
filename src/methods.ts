@@ -19,7 +19,7 @@ export const createMethodMapping = async (): Promise<MethodMapping> => {
       return bridge.send('eth_getCode', params);
     },
     eth_call: (...params) => {
-      return bridge.send('eth_getCode', params);
+      return bridge.send('eth_call', params);
     },
   };
 };

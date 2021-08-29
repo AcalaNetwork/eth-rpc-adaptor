@@ -33,9 +33,7 @@ export class Eip1193Bridge extends EventEmitter {
         return code;
       }
       case 'eth_call': {
-        // return this.#provider.call();
-        // const req = ethers.providers.JsonRpcProvider.hexlifyTransaction(params[0]);
-        // return await this.#provider.call(req, params[1]);
+        return this.#provider.call(params?.[0], params?.[1]);
       }
       case 'eth_gasPrice':
       case 'eth_accounts':
@@ -44,7 +42,7 @@ export class Eip1193Bridge extends EventEmitter {
 
       case 'eth_getBlockTransactionCountByHash':
       case 'eth_getBlockTransactionCountByNumber':
-      
+
       case 'eth_sendRawTransaction':
       case 'eth_estimateGas':
       case 'eth_getBlockByHash':
