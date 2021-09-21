@@ -1,38 +1,41 @@
+import HTTPServerTransport from '@open-rpc/server-js/build/transports/http';
+import WebSocketServerTransport from '@open-rpc/server-js/build/transports/websocket';
 import dotenv from 'dotenv';
+import { Eip1193Bridge } from './eip1193-bridge';
+import { EvmRpcProvider } from './evm-rpc-provider';
+import { Router } from './router';
+import { rpcLog } from './logger';
+
 dotenv.config();
-import { OpenrpcDocument } from '@open-rpc/meta-schema';
-import { parseOpenRPCDocument } from '@open-rpc/schema-utils-js';
-import { Server, ServerOptions } from '@open-rpc/server-js';
-import { HTTPServerTransportOptions } from '@open-rpc/server-js/build/transports/http';
-import { WebSocketServerTransportOptions } from '@open-rpc/server-js/build/transports/websocket';
-import { createMethodMapping } from './methods';
-import doc from './rpc.json';
 
 export async function start() {
-  const serverOptions: ServerOptions = {
-    openrpcDocument: await parseOpenRPCDocument(doc as OpenrpcDocument),
-    transportConfigs: [
-      {
-        type: 'HTTPTransport',
-        options: {
-          port: 3330,
-          middleware: [],
-        } as HTTPServerTransportOptions,
-      },
-      {
-        type: 'WebSocketTransport',
-        options: {
-          port: 3331,
-          middleware: [],
-        } as WebSocketServerTransportOptions,
-      },
-    ],
-    methodMapping: await createMethodMapping(),
-  };
+  const ENDPOINT_URL = process.env.ENDPOINT_URL;
+  if (!ENDPOINT_URL) {
+    throw new Error('ENDPOINT_URL is not defined');
+  }
+  const provider = new EvmRpcProvider(ENDPOINT_URL);
 
-  console.log('Starting Server');
+  const bridge = new Eip1193Bridge(provider);
 
-  const s = new Server(serverOptions);
+  const router = new Router(bridge);
 
-  s.start();
+  const HTTPTransport = new HTTPServerTransport({
+    port: 3330,
+    middleware: [rpcLog],
+  });
+
+  const WebSocketTransport = new WebSocketServerTransport({
+    port: 3331,
+    middleware: [rpcLog],
+  });
+
+  HTTPTransport.addRouter(router as any);
+  WebSocketTransport.addRouter(router as any);
+
+  HTTPTransport.start();
+  WebSocketTransport.start();
+
+  console.log('Starting Server, HTTP: 3330, WS: 3331');
+
+  await provider.isReady();
 }

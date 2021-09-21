@@ -52,7 +52,21 @@ export class Eip1193Bridge extends EventEmitter {
     return this.send(request.method, request.params || []);
   }
 
-  async send(method: string, params?: Array<any>): Promise<any> {
+  isMethodImplemented(method: string): boolean {
+    return [
+      'net_version',
+      'eth_chainId',
+      'eth_blockNumber',
+      'eth_getTransactionCount',
+      'eth_getCode',
+      'eth_call',
+      'eth_getBalance',
+      'eth_getBlockByHash',
+      'eth_getBlockByNumber',
+    ].includes(method);
+  }
+
+  async send(method: string, params: any[] = []): Promise<any> {
     switch (method) {
       case 'net_version': {
         return this.#provider.netVersion();
@@ -66,18 +80,18 @@ export class Eip1193Bridge extends EventEmitter {
         return hexValue(chainId);
       }
       case 'eth_getTransactionCount': {
-        const count = await this.#provider.getTransactionCount(params?.[0], params?.[1]);
+        const count = await this.#provider.getTransactionCount(params[0], params[1]);
         return hexValue(count);
       }
       case 'eth_getCode': {
-        const code = await this.#provider.getCode(params?.[0], params?.[1]);
+        const code = await this.#provider.getCode(params[0], params[1]);
         return code;
       }
       case 'eth_call': {
-        return this.#provider.call(params?.[0], params?.[1]);
+        return this.#provider.call(params[0], params[1]);
       }
       case 'eth_getBalance': {
-        const balance = await this.#provider.getBalance(params?.[0], params?.[1]);
+        const balance = await this.#provider.getBalance(params[0], params[1]);
         return hexlifyRpcResult(balance);
       }
 
@@ -85,7 +99,7 @@ export class Eip1193Bridge extends EventEmitter {
       case 'eth_getBlockByNumber': {
         if (params?.[0] === undefined) return null;
 
-        const block = await this.#provider.getBlock(params?.[0], params?.[1]);
+        const block = await this.#provider.getBlock(params[0], params[1]);
 
         return hexlifyRpcResult(block);
       }

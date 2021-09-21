@@ -39,7 +39,6 @@ describe('rpc test', () => {
       from: '0x33f9440ff970496a09e391f3773a66f1e98eb13c',
       to: '0xbffb25b73c6a0581a28988ce34c9f240d525b152',
     });
-    console.log(result);
 
     expect(result).toBeDefined();
   });

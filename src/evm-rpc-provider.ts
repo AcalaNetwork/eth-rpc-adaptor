@@ -100,8 +100,6 @@ export class EvmRpcProvider {
       fullTx: full,
     });
 
-    console.log('blockHash', blockHash);
-
     const [block, header, validators, now] = await Promise.all([
       this.#api.rpc.chain.getBlock(blockHash),
       this.#api.rpc.chain.getHeader(blockHash),

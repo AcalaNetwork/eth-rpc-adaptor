@@ -24,7 +24,6 @@ describe('EvmRpcProvider', () => {
     await provider.isReady();
     const blockHash = await provider._getBlockTag('0x123');
 
-    console.log('blockHash', blockHash);
     expect(blockHash.length).toBe(66);
   });
 });
