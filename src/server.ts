@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import { OpenrpcDocument } from '@open-rpc/meta-schema';
 import { parseOpenRPCDocument } from '@open-rpc/schema-utils-js';
 import { Server, ServerOptions } from '@open-rpc/server-js';

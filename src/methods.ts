@@ -3,7 +3,11 @@ import { Eip1193Bridge } from './eip1193-bridge';
 import { EvmRpcProvider } from './evm-rpc-provider';
 
 export const createMethodMapping = async (): Promise<MethodMapping> => {
-  const provider = new EvmRpcProvider('wss://mandala6.laminar.codes/');
+  const ENDPOINT_URL = process.env.ENDPOINT_URL;
+  if (!ENDPOINT_URL) {
+    throw new Error('ENDPOINT_URL is not defined');
+  }
+  const provider = new EvmRpcProvider(ENDPOINT_URL);
 
   await provider.isReady();
 
