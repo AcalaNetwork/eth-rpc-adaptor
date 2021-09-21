@@ -40,6 +40,22 @@
       }
     },
     {
+      "name": "net_version",
+      "summary": "Returns the currently configured chain ID, a value used in replay-protected transaction signing as introduced by EIP-155.",
+      "params": [],
+      "result": {
+        "name": "quantity",
+        "schema": {
+          "title": "quantity",
+          "items": {
+            "title": "hex encoded of the current chain ID",
+            "type": "string",
+            "pattern": "^0x[0-9a-f]+$"
+          }
+        }
+      }
+    },
+    {
       "name": "eth_call",
       "summary": "Executes a new message call immediately without creating a transaction on the block chain.",
       "params": [
@@ -49,10 +65,28 @@
           "schema": {
             "title": "Transaction object with sender",
             "type": "object",
-            "required": [
-              "from"
-            ],
+            
             "oneOf": [
+              {
+                "type": "object",
+                "title": "custom",
+                "required": [
+                  "to",
+                  "data"
+                ],
+                "properties": {
+                  "to": {
+                    "title": "to address",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{40}$"
+                  },
+                  "data": {
+                    "title": "input data",
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]+$"
+                  }
+                }
+              },
               {
                 "type": "object",
                 "title": "EIP-1559 transaction.",

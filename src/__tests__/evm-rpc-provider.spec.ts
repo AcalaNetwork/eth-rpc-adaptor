@@ -18,4 +18,13 @@ describe('EvmRpcProvider', () => {
       expect((e as any).type).toEqual('error');
     }
   });
+
+  it('getBlockTag', async () => {
+    const provider = new EvmRpcProvider('wss://mandala6.laminar.codes/');
+    await provider.isReady();
+    const blockHash = await provider._getBlockTag('0x123');
+
+    console.log('blockHash', blockHash);
+    expect(blockHash.length).toBe(66);
+  });
 });
