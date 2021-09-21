@@ -4,11 +4,10 @@
   "main": "index.js",
   "license": "MIT",
   "resolutions": {
-    "@polkadot/api": "5.6.1",
-    "@polkadot/api-derive": "5.6.1"
+    "@polkadot/api": "5.9.1",
+    "@polkadot/api-derive": "5.9.1"
   },
   "author": "Acala Developers <hello@acala.network>",
-
   "scripts": {
     "build-ts": "yarn tsc",
     "build": "yarn run build-ts",
@@ -22,10 +21,10 @@
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"yarn run watch-ts\" \"yarn run watch-node\""
   },
   "dependencies": {
-    "@acala-network/api": "^2.2.1",
+    "@acala-network/api": "^2.3.2-0",
     "@open-rpc/schema-utils-js": "^1.15.0",
     "@open-rpc/server-js": "^1.9.0",
-    "@polkadot/api": "^5.6.1",
+    "@polkadot/api": "^5.9.1",
     "@types/jest": "^27.0.1",
     "ethers": "^5.4.5",
     "jest": "^27.1.0",

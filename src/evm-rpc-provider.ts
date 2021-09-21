@@ -57,7 +57,7 @@ export class EvmRpcProvider {
   };
 
   chainId = async (): Promise<number> => {
-    return 42;
+    return 1337;
   };
 
   getBlockNumber = async (): Promise<number> => {
