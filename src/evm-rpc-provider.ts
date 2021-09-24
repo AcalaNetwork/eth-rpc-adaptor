@@ -259,7 +259,8 @@ export class EvmRpcProvider {
 
     switch (blockTag) {
       case 'pending': {
-        throw new UnsupportedParams('unsupport pending BlockTag');
+        const hash = await this.#api.rpc.chain.getBlockHash();
+        return hash.toHex();
       }
       case 'latest': {
         const hash = await this.#api.rpc.chain.getFinalizedHead();
