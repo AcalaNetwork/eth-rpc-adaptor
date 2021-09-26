@@ -175,7 +175,14 @@ export class EvmRpcProvider {
     addressOrName: string | Promise<string>,
     blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<number> => {
-    const accountInfo = await this.queryAccountInfo(addressOrName, blockTag);
+    let resolvedBlockTag = await blockTag;
+
+    if (resolvedBlockTag === 'pending') {
+      const hash = await this.#api.rpc.chain.getBlockHash();
+      resolvedBlockTag = hash.toHex();
+    }
+
+    const accountInfo = await this.queryAccountInfo(addressOrName, resolvedBlockTag);
 
     return !accountInfo.isNone ? accountInfo.unwrap().nonce.toNumber() : 0;
   };
