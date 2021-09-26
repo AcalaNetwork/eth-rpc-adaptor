@@ -1,10 +1,10 @@
 import { options } from '@acala-network/api';
 import type { EvmAccountInfo, EvmContractInfo } from '@acala-network/types/interfaces';
-import { TransactionRequest, TransactionReceipt, Block } from '@ethersproject/abstract-provider';
-import { BigNumber } from '@ethersproject/bignumber';
-import { hexlify, isHexString, joinSignature } from '@ethersproject/bytes';
+import { Block, TransactionRequest } from '@ethersproject/abstract-provider';
+import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
+import { hexlify, hexValue, isHexString, joinSignature } from '@ethersproject/bytes';
 import { Deferrable, resolveProperties } from '@ethersproject/properties';
-import { accessListify, Transaction, parse } from '@ethersproject/transactions';
+import { accessListify, parse, Transaction } from '@ethersproject/transactions';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { createHeaderExtended } from '@polkadot/api-derive';
 import type { Option } from '@polkadot/types';
@@ -204,12 +204,6 @@ export class EvmRpcProvider {
     return code.toHex();
   };
 
-  // pub from: Option<H160>,
-  // pub to: Option<H160>,
-  // pub gas_limit: Option<u64>,
-  // pub storage_limit: Option<u32>,
-  // pub value: Option<NumberOrHex>,
-  // pub data: Option<Bytes>,
   call = async (
     transaction: Deferrable<TransactionRequest>,
     blockTag?: BlockTag | Promise<BlockTag>
@@ -238,6 +232,23 @@ export class EvmRpcProvider {
 
     return data.toHex();
   };
+
+  async getStorageAt(
+    addressOrName: string | Promise<string>,
+    position: BigNumberish | Promise<BigNumberish>,
+    blockTag?: BlockTag | Promise<BlockTag>
+  ): Promise<string> {
+    // await this.getNetwork();
+    const { address, resolvedPosition, blockHash } = await resolveProperties({
+      address: this._getAddress(addressOrName),
+      blockHash: this._getBlockTag(blockTag),
+      resolvedPosition: Promise.resolve(position).then((p) => hexValue(p)),
+    });
+
+    const code = await this.#api.query.evm.accountStorages.at(blockHash, address, position);
+
+    return code.toHex();
+  }
 
   queryAccountInfo = async (
     addressOrName: string | Promise<string>,
@@ -317,8 +328,7 @@ export class EvmRpcProvider {
 
     switch (blockTag) {
       case 'pending': {
-        const hash = await this.#api.rpc.chain.getBlockHash();
-        return hash.toHex();
+        throw new UnsupportedParams('Not support pending tag');
       }
       case 'latest': {
         const hash = await this.#api.rpc.chain.getFinalizedHead();
