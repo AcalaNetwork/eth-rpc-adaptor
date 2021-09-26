@@ -41,99 +41,184 @@ const hexlifyRpcResult = (data: unknown): any => {
 };
 
 export class Eip1193Bridge extends EventEmitter {
-  readonly #provider: EvmRpcProvider;
+  readonly #impl: Eip1193BridgeImpl;
 
   constructor(provider: EvmRpcProvider) {
     super();
-    this.#provider = provider;
+    this.#impl = new Eip1193BridgeImpl(provider);
   }
 
   request(request: { method: string; params?: Array<any> }): Promise<any> {
     return this.send(request.method, request.params || []);
   }
 
-  isMethodImplemented(method: string): boolean {
-    return [
-      'net_version',
-      'eth_chainId',
-      'eth_blockNumber',
-      'eth_getTransactionCount',
-      'eth_getCode',
-      'eth_call',
-      'eth_getBalance',
-      'eth_getBlockByHash',
-      'eth_getBlockByNumber',
-    ].includes(method);
+  isMethodValid(method: string): boolean {
+    return method.startsWith('eth_') || method.startsWith('net_') || method.startsWith('web3_');
+  }
+
+  isMethodImplemented(method: string): method is keyof Eip1193BridgeImpl {
+    return this.isMethodValid(method) && method in this.#impl;
   }
 
   async send(method: string, params: any[] = []): Promise<any> {
-    switch (method) {
-      case 'net_version': {
-        return this.#provider.netVersion();
-      }
-      case 'eth_blockNumber': {
-        const number = await this.#provider.getBlockNumber();
-        return hexValue(number);
-      }
-      case 'eth_chainId': {
-        const chainId = await this.#provider.chainId();
-        return hexValue(chainId);
-      }
-      case 'eth_getTransactionCount': {
-        const count = await this.#provider.getTransactionCount(params[0], params[1]);
-        return hexValue(count);
-      }
-      case 'eth_getCode': {
-        const code = await this.#provider.getCode(params[0], params[1]);
-        return code;
-      }
-      case 'eth_call': {
-        return this.#provider.call(params[0], params[1]);
-      }
-      case 'eth_getBalance': {
-        const balance = await this.#provider.getBalance(params[0], params[1]);
-        return hexlifyRpcResult(balance);
-      }
-
-      case 'eth_getBlockByHash':
-      case 'eth_getBlockByNumber': {
-        if (params?.[0] === undefined) return null;
-
-        const block = await this.#provider.getBlock(params[0], params[1]);
-
-        return hexlifyRpcResult(block);
-      }
-
-      case 'eth_gasPrice':
-      case 'eth_accounts':
-      case 'eth_getStorageAt':
-
-      case 'eth_getBlockTransactionCountByHash':
-      case 'eth_getBlockTransactionCountByNumber':
-
-      case 'eth_sendRawTransaction':
-      case 'eth_estimateGas':
-
-      case 'eth_getTransactionByHash':
-      case 'eth_getTransactionReceipt':
-      case 'eth_sign':
-      case 'eth_sendTransaction':
-      case 'eth_getUncleCountByBlockHash':
-      case 'eth_getUncleCountByBlockNumber':
-      case 'eth_getTransactionByBlockHashAndIndex':
-      case 'eth_getTransactionByBlockNumberAndIndex':
-      case 'eth_getUncleByBlockHashAndIndex':
-      case 'eth_getUncleByBlockNumberAndIndex':
-      case 'eth_newFilter':
-      case 'eth_newBlockFilter':
-      case 'eth_newPendingTransactionFilter':
-      case 'eth_uninstallFilter':
-      case 'eth_getFilterChanges':
-      case 'eth_getFilterLogs':
-      case 'eth_getLogs':
-        break;
+    if (this.isMethodImplemented(method)) {
+      // isMethodImplemented ensuress this cannot be used to access other unrelated methods
+      return this.#impl[method](params);
     }
-
     throw new Error(`unsupported method: ${method}`);
   }
+}
+
+class Eip1193BridgeImpl {
+  readonly #provider: EvmRpcProvider;
+
+  constructor(provider: EvmRpcProvider) {
+    this.#provider = provider;
+  }
+
+  async web3_clientVersion(): Promise<string> {
+    return 'Acala/v0.0.1'
+  }
+  
+  async net_version(): Promise<any> {
+    return this.#provider.netVersion();
+  }
+
+  async eth_blockNumber(): Promise<any> {
+    const number = await this.#provider.getBlockNumber();
+    return hexValue(number);
+  }
+
+  async eth_chainId() {
+    const chainId = await this.#provider.chainId();
+    return hexValue(chainId);
+  }
+
+  async eth_getTransactionCount(params: any[]): Promise<any> {
+    const count = await this.#provider.getTransactionCount(params[0], params[1]);
+    return hexValue(count);
+  }
+
+  async eth_getCode(params: any[]): Promise<any> {
+    return this.#provider.getCode(params[0], params[1]);
+  }
+
+  async eth_call(params: any[]): Promise<any> {
+    return this.#provider.call(params[0], params[1]);
+  }
+
+  async eth_getBalance(params: any[]): Promise<any> {
+    const balance = await this.#provider.getBalance(params[0], params[1]);
+    return hexlifyRpcResult(balance);
+  }
+
+  async eth_getBlockByHash(params: any[]): Promise<any> {
+    if (params?.[0] === undefined) return null;
+
+    const block = await this.#provider.getBlock(params[0], params[1]);
+
+    return hexlifyRpcResult(block);
+  }
+
+  async eth_getBlockByNumber(params: any[]): Promise<any> {
+    return this.eth_getBlockByHash(params)
+  }
+
+  // async eth_gasPrice(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_accounts(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_getStorageAt(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_getBlockTransactionCountByHash(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_getBlockTransactionCountByNumber(params: any[]): Promise<any> {
+
+  // }
+
+  async eth_sendRawTransaction(params: any[]): Promise<any> {
+    const tx = params[0];
+    return this.#provider.sendRawTransaction(tx);
+  }
+
+  async eth_estimateGas(params: any[]): Promise<any> {
+    // @TODO 
+    return 1000000;
+  }
+
+  // async eth_getTransactionByHash(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_getTransactionReceipt(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_sign(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_sendTransaction(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_getUncleCountByBlockHash(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_getUncleCountByBlockNumber(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_getTransactionByBlockHashAndIndex(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_getTransactionByBlockNumberAndIndex(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_getUncleByBlockHashAndIndex(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_getUncleByBlockNumberAndIndex(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_newFilter(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_newBlockFilter(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_newPendingTransactionFilter(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_uninstallFilter(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_getFilterChanges(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_getFilterLogs(params: any[]): Promise<any> {
+
+  // }
+
+  // async eth_getLogs(params: any[]): Promise<any> {
+
+  // }
 }
