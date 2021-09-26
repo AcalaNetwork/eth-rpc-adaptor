@@ -41,6 +41,21 @@ export class EvmRpcProvider {
             maintainer: 'H160',
             deployed: 'bool',
           },
+          TransactionAction: {
+            _enum: {
+              Call: 'H160',
+              Create: 'Null',
+            },
+          },
+          MultiSignature: {
+            _enum: {
+              Ed25519: 'Ed25519Signature',
+              Sr25519: 'Sr25519Signature',
+              Ecdsa: 'EcdsaSignature',
+              Ethereum: '[u8; 65]',
+              Eip712: '[u8; 65]',
+            },
+          },
         },
         provider: new WsProvider(endpoint),
       })
@@ -69,11 +84,11 @@ export class EvmRpcProvider {
   };
 
   netVersion = async (): Promise<string> => {
-    return '1666700002';
+    return this.#api.consts.evm.chainId.toString();
   };
 
   chainId = async (): Promise<number> => {
-    return 1666700002;
+    return (this.#api.consts.evm.chainId as any).toNumber();
   };
 
   // @TODO Is finalized?
