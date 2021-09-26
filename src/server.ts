@@ -1,10 +1,9 @@
-import HTTPServerTransport from '@open-rpc/server-js/build/transports/http';
-import WebSocketServerTransport from '@open-rpc/server-js/build/transports/websocket';
+import HTTPServerTransport from './transports/http';
+import WebSocketServerTransport from './transports/websocket';
 import dotenv from 'dotenv';
 import { Eip1193Bridge } from './eip1193-bridge';
 import { EvmRpcProvider } from './evm-rpc-provider';
 import { Router } from './router';
-import { rpcLog } from './logger';
 
 dotenv.config();
 
@@ -16,7 +15,7 @@ export async function start() {
 
   const HTTP_PORT = Number(process.env.HTTP_PORT || 3330);
   const WS_PORT = Number(process.env.WS_PORT || 3331);
-  
+
   const provider = new EvmRpcProvider(ENDPOINT_URL);
 
   const bridge = new Eip1193Bridge(provider);
@@ -25,12 +24,12 @@ export async function start() {
 
   const HTTPTransport = new HTTPServerTransport({
     port: HTTP_PORT,
-    middleware: [rpcLog],
+    middleware: [],
   });
 
   const WebSocketTransport = new WebSocketServerTransport({
     port: WS_PORT,
-    middleware: [rpcLog],
+    middleware: [],
   });
 
   HTTPTransport.addRouter(router as any);

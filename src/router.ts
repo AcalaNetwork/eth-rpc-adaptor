@@ -1,6 +1,7 @@
-import { Eip1193Bridge } from './eip1193-bridge';
 import { logger } from './logger';
-
+import { Eip1193Bridge } from './eip1193-bridge';
+import { JSONRPCError } from './errors';
+import { JSONRPCResponse } from './transports/types';
 export class Router {
   readonly #bridge: Eip1193Bridge;
 
@@ -8,13 +9,14 @@ export class Router {
     this.#bridge = bridge;
   }
 
-  public async call(methodName: string, params: unknown[]) {
+  public async call(methodName: string, params: unknown[]): Promise<Partial<JSONRPCResponse>> {
     try {
       return { result: await this.#bridge.send(methodName, params) };
-    } catch (e) {
-      // if (e instanceof JSONRPCError) {
-      //   return { error: { code: e.code, message: e.message, data: e.data } };
-      // }
+    } catch (err) {
+      if (JSONRPCError.isJSONRPCError(err)) {
+        return { error: { code: err.code, message: err.message, data: err.data } };
+      }
+      logger.error({ err, methodName, params }, 'request error');
       return { error: { code: 6969, message: 'unknown error' } };
     }
   }
