@@ -77,9 +77,9 @@ class Eip1193BridgeImpl {
   }
 
   async web3_clientVersion(): Promise<string> {
-    return 'Acala/v0.0.1'
+    return 'Acala/v0.0.1';
   }
-  
+
   async net_version(): Promise<any> {
     return this.#provider.netVersion();
   }
@@ -121,7 +121,7 @@ class Eip1193BridgeImpl {
   }
 
   async eth_getBlockByNumber(params: any[]): Promise<any> {
-    return this.eth_getBlockByHash(params)
+    return this.eth_getBlockByHash(params);
   }
 
   // async eth_gasPrice(params: any[]): Promise<any> {
@@ -150,7 +150,7 @@ class Eip1193BridgeImpl {
   }
 
   async eth_estimateGas(params: any[]): Promise<any> {
-    // @TODO 
+    // @TODO
     return 1000000;
   }
 

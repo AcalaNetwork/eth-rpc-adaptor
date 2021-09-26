@@ -283,21 +283,15 @@ export class EvmRpcProvider {
       validUntil
     );
 
-    const subAddr = encodeAddress(
-      u8aConcat(
-        stringToU8a("evm:"),
-        hexToU8a(ethTx.from),
-        new Uint8Array(8).fill(0)
-      )
-    );
+    const subAddr = encodeAddress(u8aConcat(stringToU8a('evm:'), hexToU8a(ethTx.from), new Uint8Array(8).fill(0)));
 
     const sig = joinSignature({ r: ethTx.r!, s: ethTx.s, v: ethTx.v });
 
     acalaTx.addSignature(subAddr, { Ethereum: sig } as any, {
       blockHash: '0x', // ignored
-      era: "0x00", // mortal
+      era: '0x00', // mortal
       genesisHash: '0x', // ignored
-      method: "Bytes", // don't know waht is this
+      method: 'Bytes', // don't know waht is this
       nonce: ethTx.nonce,
       specVersion: 0, // ignored
       tip: 0, // need to be zero
