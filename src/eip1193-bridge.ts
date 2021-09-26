@@ -132,9 +132,9 @@ class Eip1193BridgeImpl {
 
   // }
 
-  // async eth_getStorageAt(params: any[]): Promise<any> {
-
-  // }
+  async eth_getStorageAt(params: any[]): Promise<any> {
+    return this.#provider.getStorageAt(params[0], params[1], params[2]);
+  }
 
   // async eth_getBlockTransactionCountByHash(params: any[]): Promise<any> {
 
