@@ -2,13 +2,16 @@ import { options } from '@acala-network/api';
 import type { EvmAccountInfo, EvmContractInfo } from '@acala-network/types/interfaces';
 import { TransactionRequest, TransactionReceipt, Block } from '@ethersproject/abstract-provider';
 import { BigNumber } from '@ethersproject/bignumber';
-import { hexlify, isHexString } from '@ethersproject/bytes';
+import { hexlify, isHexString, joinSignature } from '@ethersproject/bytes';
 import { Deferrable, resolveProperties } from '@ethersproject/properties';
-import { accessListify, Transaction } from '@ethersproject/transactions';
+import { accessListify, Transaction, parse } from '@ethersproject/transactions';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { createHeaderExtended } from '@polkadot/api-derive';
 import type { Option } from '@polkadot/types';
+import { hexToU8a, stringToU8a, u8aConcat } from '@polkadot/util';
+import { encodeAddress } from '@polkadot/util-crypto';
 import { InvalidParams, UnsupportedParams } from './errors';
+import { logger } from './logger';
 
 export type BlockTag = 'earliest' | 'latest' | 'pending' | string | number;
 
@@ -41,6 +44,21 @@ export class EvmRpcProvider {
             maintainer: 'H160',
             deployed: 'bool',
           },
+          TransactionAction: {
+            _enum: {
+              Call: 'H160',
+              Create: 'Null',
+            },
+          },
+          MultiSignature: {
+            _enum: {
+              Ed25519: 'Ed25519Signature',
+              Sr25519: 'Sr25519Signature',
+              Ecdsa: 'EcdsaSignature',
+              Ethereum: '[u8; 65]',
+              Eip712: '[u8; 65]',
+            },
+          },
         },
         provider: new WsProvider(endpoint),
       })
@@ -69,11 +87,11 @@ export class EvmRpcProvider {
   };
 
   netVersion = async (): Promise<string> => {
-    return '1666700002';
+    return this.#api.consts.evm.chainId.toString();
   };
 
   chainId = async (): Promise<number> => {
-    return 1666700002;
+    return (this.#api.consts.evm.chainId as any).toNumber();
   };
 
   // @TODO Is finalized?
@@ -248,6 +266,46 @@ export class EvmRpcProvider {
     }
 
     return accountInfo.unwrap().contractInfo;
+  };
+
+  sendRawTransaction = async (rawTx: string): Promise<string> => {
+    const ethTx = parse(rawTx);
+
+    const storageLimit = ethTx.gasPrice?.shr(32).toString() ?? 0;
+    const validUntil = ethTx.gasPrice?.and(0xffffffff).toString() ?? 0;
+
+    const acalaTx = this.#api.tx.evm.ethCall(
+      ethTx.to ? { Call: ethTx.to } : { Create: null },
+      ethTx.data,
+      ethTx.value.toString(),
+      ethTx.gasLimit.toString(),
+      storageLimit,
+      validUntil
+    );
+
+    const subAddr = encodeAddress(u8aConcat(stringToU8a('evm:'), hexToU8a(ethTx.from), new Uint8Array(8).fill(0)));
+
+    const sig = joinSignature({ r: ethTx.r!, s: ethTx.s, v: ethTx.v });
+
+    acalaTx.addSignature(subAddr, { Ethereum: sig } as any, {
+      blockHash: '0x', // ignored
+      era: '0x00', // mortal
+      genesisHash: '0x', // ignored
+      method: 'Bytes', // don't know waht is this
+      nonce: ethTx.nonce,
+      specVersion: 0, // ignored
+      tip: 0, // need to be zero
+      transactionVersion: 0, // ignored
+    });
+
+    logger.info({
+      address: subAddr,
+      hash: acalaTx.hash.toHex(),
+    });
+
+    await acalaTx.send();
+
+    return acalaTx.hash.toHex();
   };
 
   _getBlockTag = async (blockTag?: BlockTag | Promise<BlockTag>): Promise<string> => {

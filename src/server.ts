@@ -13,6 +13,10 @@ export async function start() {
   if (!ENDPOINT_URL) {
     throw new Error('ENDPOINT_URL is not defined');
   }
+
+  const HTTP_PORT = Number(process.env.HTTP_PORT || 3330);
+  const WS_PORT = Number(process.env.WS_PORT || 3331);
+  
   const provider = new EvmRpcProvider(ENDPOINT_URL);
 
   const bridge = new Eip1193Bridge(provider);
@@ -20,12 +24,12 @@ export async function start() {
   const router = new Router(bridge);
 
   const HTTPTransport = new HTTPServerTransport({
-    port: 3330,
+    port: HTTP_PORT,
     middleware: [rpcLog],
   });
 
   const WebSocketTransport = new WebSocketServerTransport({
-    port: 3331,
+    port: WS_PORT,
     middleware: [rpcLog],
   });
 
@@ -35,7 +39,7 @@ export async function start() {
   HTTPTransport.start();
   WebSocketTransport.start();
 
-  console.log('Starting Server, HTTP: 3330, WS: 3331');
+  console.log(`Starting Server, HTTP: ${HTTP_PORT}, WS: ${WS_PORT}`);
 
   await provider.isReady();
 }
