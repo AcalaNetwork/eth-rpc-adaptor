@@ -7,6 +7,7 @@ import WebSocket from 'ws';
 import { logger } from '../logger';
 import ServerTransport from './server-transport';
 import type { JSONRPCRequest } from './types';
+import { errorHandler } from '../middlewares';
 
 export interface WebSocketServerTransportOptions extends SecureServerOptions {
   middleware: HandleFunction[];
@@ -35,6 +36,7 @@ export default class WebSocketServerTransport extends ServerTransport {
           limit: '1mb',
         }),
         ...options.middleware,
+        errorHandler,
       ],
     };
 

@@ -5,7 +5,7 @@ import http, { ServerOptions } from 'http';
 import ServerTransport from './server-transport';
 import type { JSONRPCRequest } from './types';
 import { logger } from '../logger';
-
+import { errorHandler } from '../middlewares';
 export interface HTTPServerTransportOptions extends ServerOptions {
   middleware: HandleFunction[];
   port: number;
@@ -36,6 +36,7 @@ export default class HTTPServerTransport extends ServerTransport {
     this.options.middleware.forEach((mw) => app.use(mw));
 
     app.use(this.httpRouterHandler.bind(this) as HandleFunction);
+    app.use(errorHandler);
 
     this.server = http.createServer(app);
   }
