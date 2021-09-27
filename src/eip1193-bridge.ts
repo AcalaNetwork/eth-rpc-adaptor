@@ -99,13 +99,15 @@ class Eip1193BridgeImpl {
     return this.#provider.getStorageAt(params[0], params[1], params[2]);
   }
 
-  // async eth_getBlockTransactionCountByHash(params: any[]): Promise<any> {
+  async eth_getBlockTransactionCountByHash(params: any[]): Promise<any> {
+    const result = await this.#provider.getBlock(params[0]);
+    return hexValue(result.transactions.length);
+  }
 
-  // }
-
-  // async eth_getBlockTransactionCountByNumber(params: any[]): Promise<any> {
-
-  // }
+  async eth_getBlockTransactionCountByNumber(params: any[]): Promise<any> {
+    const result = await this.#provider.getBlock(params[0]);
+    return hexValue(result.transactions.length);
+  }
 
   async eth_sendRawTransaction(params: any[]): Promise<any> {
     const tx = params[0];
