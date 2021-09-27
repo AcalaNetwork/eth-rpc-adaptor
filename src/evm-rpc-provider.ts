@@ -94,13 +94,9 @@ export class EvmRpcProvider {
     return (this.#api.consts.evm.chainId as any).toNumber();
   };
 
-  // @TODO Is finalized?
   getBlockNumber = async (): Promise<number> => {
-    // const hash = await this.#api.rpc.chain.getFinalizedHead();
-    // const header = await this.#api.rpc.chain.getHeader(hash);
-
-    const header = await this.#api.rpc.chain.getHeader();
-
+    const blockHash = await this._getBlockTag('latest');
+    const header = await this.#api.rpc.chain.getHeader(blockHash);
     return header.number.toNumber();
   };
 
@@ -110,7 +106,7 @@ export class EvmRpcProvider {
   ): Promise<RichBlock> => {
     // @TODO
     if (full) {
-      throw new Error('The full parameter is not supported');
+      throw new UnsupportedParams('Param not available', `The param "full" is not available.`);
     }
 
     const { fullTx, blockHash } = await resolveProperties({

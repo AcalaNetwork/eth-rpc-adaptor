@@ -1,6 +1,6 @@
 export interface JSONRPCRequest {
   jsonrpc: string;
-  id?: string;
+  id: string;
   method: string;
   params: any[] | Record<string, unknown>;
 }

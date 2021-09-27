@@ -1,5 +1,6 @@
 import { Router } from '../router';
 import type { JSONRPCRequest, JSONRPCResponse } from './types';
+import { MethodNotFound, InvalidRequest } from '../errors';
 
 export abstract class ServerTransport {
   public routers: Router[] = [];
@@ -18,6 +19,17 @@ export abstract class ServerTransport {
   }
 
   protected async routerHandler({ id, method, params }: JSONRPCRequest): Promise<JSONRPCResponse> {
+    if (!id) {
+      const error = new InvalidRequest();
+      return {
+        jsonrpc: '2.0',
+        error: {
+          code: error.code,
+          data: error.data,
+          message: error.message,
+        },
+      };
+    }
     if (this.routers.length === 0) {
       console.warn('transport method called without a router configured.'); // tslint:disable-line
       throw new Error('No router configured');
@@ -32,12 +44,14 @@ export abstract class ServerTransport {
 
     if (routerForMethod === undefined) {
       // method not found in any of the routers.
+      const error = new MethodNotFound('Method not found', `The method ${method} does not exist / is not available.`);
+
       res = {
         ...res,
         error: {
-          code: -32601,
-          data: `The method ${method} does not exist / is not available.`,
-          message: 'Method not found',
+          code: error.code,
+          data: error.data,
+          message: error.message,
         },
       };
     } else {

@@ -5,6 +5,7 @@ import http2, { Http2SecureServer, SecureServerOptions } from 'http2';
 import ServerTransport from './server-transport';
 import type { JSONRPCRequest } from './types';
 import { logger } from '../logger';
+import { errorHandler } from '../middlewares';
 
 export interface HTTPSServerTransportOptions extends SecureServerOptions {
   middleware: HandleFunction[];
@@ -37,6 +38,7 @@ export default class HTTPSServerTransport extends ServerTransport {
 
     this.options.middleware.forEach((mw) => app.use(mw));
     app.use(this.httpsRouterHandler.bind(this));
+    app.use(errorHandler);
     this.server = http2.createSecureServer(options, (req: any, res: any) => app(req, res));
   }
 
