@@ -25,7 +25,7 @@ export class InvalidRequest extends JSONRPCError {
 
 export class InternalError extends JSONRPCError {
   constructor() {
-    super('internal error	', -32603);
+    super('internal error', -32603);
   }
 }
 

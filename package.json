@@ -9,23 +9,18 @@
   },
   "author": "Acala Developers <hello@acala.network>",
   "scripts": {
+    "build-ts": "yarn tsc",
+    "build": "yarn run build-ts",
     "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet",
     "start": "ts-node src/index",
     "dev": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node src/index.ts\" | pino-pretty",
-    "test": "jest --forceExit --coverage --verbose",
-    "watch-node": "nodemon dist/index.js",
-    "watch-test": "yarn run test -- --watchAll",
-    "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"yarn run watch-ts\" \"yarn run watch-node\""
+    "test": "jest --forceExit --coverage --verbose"
   },
   "dependencies": {
     "@acala-network/api": "^2.3.2-0",
-    "@open-rpc/schema-utils-js": "^1.16.0",
-    "@open-rpc/server-js": "^1.9.0",
     "@polkadot/api": "^5.9.1",
     "@polkadot/keyring": "^7.4.1",
     "@polkadot/util": "^7.4.1",
-    "@types/node-ipc": "^9.1.5",
-    "@types/ws": "^8.2.0",
     "body-parser": "^1.19.0",
     "connect": "^3.7.0",
     "cors": "^2.8.5",
@@ -34,7 +29,7 @@
     "json-schema-faker": "^0.5.0-rcv.39",
     "node-ipc": "^10.1.0",
     "pino": "^7.0.0-rc.3",
-    "pino-http": "^5.7.0",
+    "typescript": "^4.4.3",
     "ws": "^8.2.2"
   },
   "devDependencies": {
@@ -43,13 +38,16 @@
     "@types/cors": "^2.8.12",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.10.1",
-    "@types/pino-http": "^5.7.0",
+    "@types/node-ipc": "^9.1.5",
+    "@types/ws": "^8.2.0",
+    "@typescript-eslint/eslint-plugin": "^4.32.0",
+    "@typescript-eslint/parser": "^4.32.0",
     "concurrently": "^6.2.1",
+    "eslint": "^7.32.0",
     "jest": "^27.1.0",
     "nodemon": "^2.0.12",
     "pino-pretty": "^7.0.1",
     "ts-jest": "^27.0.5",
-    "ts-node": "^10.2.1",
-    "typescript": "^4.4.2"
+    "ts-node": "^10.2.1"
   }
 }
