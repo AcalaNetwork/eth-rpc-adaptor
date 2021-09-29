@@ -19,7 +19,7 @@ export abstract class ServerTransport {
   }
 
   protected async routerHandler({ id, method, params }: JSONRPCRequest): Promise<JSONRPCResponse> {
-    if (!id) {
+    if (id === null || id === undefined) {
       const error = new InvalidRequest();
       return {
         jsonrpc: '2.0',

@@ -8,10 +8,12 @@ import { accessListify, parse, Transaction } from '@ethersproject/transactions';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { createHeaderExtended } from '@polkadot/api-derive';
 import type { Option } from '@polkadot/types';
+import type { AccountId } from '@polkadot/types/interfaces';
 import { hexToU8a, stringToU8a, u8aConcat } from '@polkadot/util';
 import { encodeAddress } from '@polkadot/util-crypto';
 import { InvalidParams, UnsupportedParams } from './errors';
 import { logger } from './logger';
+import { convertNativeToken } from './utils';
 
 export type BlockTag = 'earliest' | 'latest' | 'pending' | string | number;
 
@@ -71,6 +73,10 @@ export class EvmRpcProvider {
 
   get isConnected() {
     return this.#api.isConnected;
+  }
+
+  get chainDecimal() {
+    return this.#api.registry.chainDecimals[0] || 10;
   }
 
   isReady = async () => {
@@ -149,22 +155,23 @@ export class EvmRpcProvider {
     };
   };
 
+  // @TODO free
   getBalance = async (
     addressOrName: string | Promise<string>,
     blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<BigNumber> => {
-    // const { address, blockHash } = await resolveProperties({
-    //   address: this._getAddress(addressOrName),
-    //   blockHash: this._getBlockTag(blockTag),
-    // });
+    const { address, blockHash } = await resolveProperties({
+      address: this._getAddress(addressOrName),
+      blockHash: this._getBlockTag(blockTag),
+    });
 
-    // const accountInfo = blockHash
-    //   ? await this.#api.query.system.account.at(blockHash, address)
-    //   : await this.#api.query.system.account(address);
+    const substrateAddress = await this.querySubstrateAddress(address, blockHash);
 
-    // return BigNumber.from(accountInfo.data.free.toBigInt());
+    if (!substrateAddress) return BIGNUMBER_ZERO;
 
-    return BIGNUMBER_ZERO;
+    const accountInfo = await this.#api.query.system.account.at(blockHash, substrateAddress);
+
+    return convertNativeToken(BigNumber.from(accountInfo.data.free.toBigInt()), this.chainDecimal);
   };
 
   getTransactionCount = async (
@@ -253,6 +260,20 @@ export class EvmRpcProvider {
     return code.toHex();
   }
 
+  querySubstrateAddress = async (
+    addressOrName: string | Promise<string>,
+    blockTag?: BlockTag | Promise<BlockTag>
+  ): Promise<string | null> => {
+    const { address, blockHash } = await resolveProperties({
+      address: this._getAddress(addressOrName),
+      blockHash: this._getBlockTag(blockTag),
+    });
+
+    const substrateAccount = await this.#api.query.evmAccounts.accounts.at<Option<AccountId>>(blockHash, address);
+
+    return substrateAccount.isEmpty ? null : substrateAccount.toString();
+  };
+
   queryAccountInfo = async (
     addressOrName: string | Promise<string>,
     blockTag?: BlockTag | Promise<BlockTag>
@@ -262,9 +283,7 @@ export class EvmRpcProvider {
       blockHash: this._getBlockTag(blockTag),
     });
 
-    const accountInfo = blockHash
-      ? await this.#api.query.evm.accounts.at<Option<EvmAccountInfo>>(blockHash, address)
-      : await this.#api.query.evm.accounts<Option<EvmAccountInfo>>(address);
+    const accountInfo = this.#api.query.evm.accounts.at<Option<EvmAccountInfo>>(blockHash, address);
 
     return accountInfo;
   };

@@ -42,4 +42,10 @@ describe('rpc test', () => {
 
     expect(result).toBeDefined();
   });
+
+  it.only('getBalance', async () => {
+    const result = await provider.getBalance('0x33f9440ff970496a09e391f3773a66f1e98eb13c');
+
+    expect(result.toString()).toBe('0');
+  });
 });
