@@ -176,12 +176,10 @@ export class EvmRpcProvider {
     addressOrName: string | Promise<string>,
     blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<number> => {
-    let resolvedBlockTag = await blockTag;
+    const resolvedBlockTag = await blockTag;
 
     if (resolvedBlockTag === 'pending') {
-      const idx = await this.#api.rpc.system.accountNextIndex(
-        evmAddressToSubstrateAddress(await addressOrName)
-      )
+      const idx = await this.#api.rpc.system.accountNextIndex(evmAddressToSubstrateAddress(await addressOrName));
       return idx.toNumber();
     }
 
@@ -335,11 +333,14 @@ export class EvmRpcProvider {
       transactionVersion: 0, // ignored
     });
 
-    logger.debug({
-      evmAddr: ethTx.from,
-      address: subAddr,
-      hash: acalaTx.hash.toHex(),
-    }, 'sending raw transaction');
+    logger.debug(
+      {
+        evmAddr: ethTx.from,
+        address: subAddr,
+        hash: acalaTx.hash.toHex(),
+      },
+      'sending raw transaction'
+    );
 
     await acalaTx.send();
 
