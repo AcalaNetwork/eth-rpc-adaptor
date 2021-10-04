@@ -6,7 +6,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - .data/postgres:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: postgres
 
@@ -15,33 +15,40 @@ services:
     depends_on:
       - "postgres"
     restart: always
+    network_mode: host
     environment:
       DB_USER: postgres
       DB_PASS: postgres
       DB_DATABASE: postgres
-      DB_HOST: postgres
+      DB_HOST: localhost
       DB_PORT: 5432
     volumes:
       - ./:/app
     command:
       - -f=/app
       - --local
+      - --subquery-name=acala-evm
 
   graphql-engine:
     image: onfinality/subql-query:latest
     ports:
-      - 3000:3000
+      - 3001:3001
     depends_on:
       - "postgres"
       - "subquery-node"
     restart: always
+    network_mode: host
     environment:
       DB_USER: postgres
       DB_PASS: postgres
       DB_DATABASE: postgres
-      DB_HOST: postgres
+      DB_HOST: localhost
       DB_PORT: 5432
+      PORT: 3001
     command:
-      - --name=app
+      - --name=acala-evm
       - --playground
-      - --indexer=http://subquery-node:3000
+      - --indexer=http://localhost:3000
+
+volumes:
+  postgres:
