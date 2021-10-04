@@ -3,8 +3,7 @@ description: ''
 repository: ''
 schema: ./schema.graphql
 network:
-  endpoint: wss://mandala6.laminar.codes/
-  dictionary: https://api.subquery.network/sq/subquery/dictionary-polkadot
+  endpoint: ws://localhost:9944
 dataSources:
   - name: main
     kind: substrate/Runtime

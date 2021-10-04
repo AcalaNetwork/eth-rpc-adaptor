@@ -9,11 +9,9 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { createHeaderExtended } from '@polkadot/api-derive';
 import type { Option } from '@polkadot/types';
 import type { AccountId } from '@polkadot/types/interfaces';
-import { hexToU8a, stringToU8a, u8aConcat } from '@polkadot/util';
-import { encodeAddress } from '@polkadot/util-crypto';
 import { InvalidParams, UnsupportedParams } from './errors';
 import { logger } from './logger';
-import { convertNativeToken } from './utils';
+import { convertNativeToken, evmAddressToSubstrateAddress } from './utils';
 
 export type BlockTag = 'earliest' | 'latest' | 'pending' | string | number;
 
@@ -178,11 +176,11 @@ export class EvmRpcProvider {
     addressOrName: string | Promise<string>,
     blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<number> => {
-    let resolvedBlockTag = await blockTag;
+    const resolvedBlockTag = await blockTag;
 
     if (resolvedBlockTag === 'pending') {
-      const hash = await this.#api.rpc.chain.getBlockHash();
-      resolvedBlockTag = hash.toHex();
+      const idx = await this.#api.rpc.system.accountNextIndex(evmAddressToSubstrateAddress(await addressOrName));
+      return idx.toNumber();
     }
 
     const accountInfo = await this.queryAccountInfo(addressOrName, resolvedBlockTag);
@@ -304,6 +302,10 @@ export class EvmRpcProvider {
   sendRawTransaction = async (rawTx: string): Promise<string> => {
     const ethTx = parse(rawTx);
 
+    if (!ethTx.from) {
+      throw new Error('Invalid tranasction');
+    }
+
     const storageLimit = ethTx.gasPrice?.shr(32).toString() ?? 0;
     const validUntil = ethTx.gasPrice?.and(0xffffffff).toString() ?? 0;
 
@@ -316,7 +318,7 @@ export class EvmRpcProvider {
       validUntil
     );
 
-    const subAddr = encodeAddress(u8aConcat(stringToU8a('evm:'), hexToU8a(ethTx.from), new Uint8Array(8).fill(0)));
+    const subAddr = evmAddressToSubstrateAddress(ethTx.from);
 
     const sig = joinSignature({ r: ethTx.r!, s: ethTx.s, v: ethTx.v });
 
@@ -331,10 +333,14 @@ export class EvmRpcProvider {
       transactionVersion: 0, // ignored
     });
 
-    logger.info({
-      address: subAddr,
-      hash: acalaTx.hash.toHex(),
-    });
+    logger.debug(
+      {
+        evmAddr: ethTx.from,
+        address: subAddr,
+        hash: acalaTx.hash.toHex(),
+      },
+      'sending raw transaction'
+    );
 
     await acalaTx.send();
 
@@ -353,7 +359,7 @@ export class EvmRpcProvider {
         throw new UnsupportedParams('Not support pending tag');
       }
       case 'latest': {
-        const hash = await this.#api.rpc.chain.getFinalizedHead();
+        const hash = await this.#api.rpc.chain.getBlockHash();
         return hash.toHex();
       }
       case 'earliest': {
