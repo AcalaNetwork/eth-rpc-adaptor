@@ -12,12 +12,12 @@ export class Router {
   public async call(methodName: string, params: unknown[]): Promise<Partial<JSONRPCResponse>> {
     try {
       return { result: await this.#bridge.send(methodName, params) };
-    } catch (err) {
+    } catch (err: any) {
       if (JSONRPCError.isJSONRPCError(err)) {
         return { error: { code: err.code, message: err.message, data: err.data } };
       }
       logger.error({ err, methodName, params }, 'request error');
-      return { error: { code: 6969, message: 'unknown error' } };
+      return { error: { code: 6969, message: `Error: ${err.message}` } };
     }
   }
 
