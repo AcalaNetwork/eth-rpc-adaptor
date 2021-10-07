@@ -2,7 +2,7 @@ import type { EvmLog, H160 } from '@polkadot/types/interfaces/types';
 import { SubstrateEvent } from '@subql/types';
 import { Log, TransactionReceipt } from '../types';
 
-const NOT_EXIST_TRANSACTION_INDEX = 0xffffffff;
+const NOT_EXIST_TRANSACTION_INDEX = 0xffff;
 
 export async function handleEvmEvent(event: SubstrateEvent): Promise<void> {
   const { block } = event;
@@ -15,7 +15,7 @@ export async function handleEvmEvent(event: SubstrateEvent): Promise<void> {
       transactionHash: event.extrinsic.extrinsic.hash.toHex(),
       blockNumber: block.block.header.number.toNumber(),
       blockHash: block.block.hash,
-      transactionIndex: event.phase.toNumber(),
+      transactionIndex: txIdx,
       removed: false,
       address: evmLog.address.toString().toLowerCase(),
       data: evmLog.address.toString().toLowerCase(),
@@ -27,27 +27,33 @@ export async function handleEvmEvent(event: SubstrateEvent): Promise<void> {
     await log.save();
   };
 
-  const processEvent = () => {
+  const processEvent = (id: string) => {
     switch (event.event.method) {
-      case 'Created':
+      case 'Created': {
+        const [evmAddress, logs] = event.event.data as unknown as [H160, EvmLog[]];
+
+        return [
+          TransactionReceipt.create({
+            id,
+            to: null,
+            from: '', // @Todo
+            contractAddress: evmAddress.toString(),
+            logsBloom: '0x', // @Todo
+            status: 1,
+          }),
+          logs,
+        ] as [TransactionReceipt, EvmLog[]];
+      }
       case 'Executed': {
         const [evmAddress, logs] = event.event.data as unknown as [H160, EvmLog[]];
 
         return [
           TransactionReceipt.create({
-            id: `${block.block.header.number.toString()}-${txIdx}`,
+            id,
             to: evmAddress.toString(),
             from: '', // @Todo
             contractAddress: evmAddress.toString(),
-            transactionIndex: txIdx,
-            gasUsed: 0, // @Todo
             logsBloom: '0x', // @Todo
-            blockHash: block.block.hash,
-            transactionHash: event.extrinsic.extrinsic.hash.toHex(),
-            blockNumber: block.block.header.number.toNumber(),
-            confirmations: 4, // @Todo
-            cumulativeGasUsed: 0, // @Todo
-            byzantium: false,
             status: 1,
           }),
           logs,
@@ -58,19 +64,11 @@ export async function handleEvmEvent(event: SubstrateEvent): Promise<void> {
 
         return [
           TransactionReceipt.create({
-            id: `${block.block.header.number.toString()}-${event.extrinsic?.idx ?? NOT_EXIST_TRANSACTION_INDEX}`,
-            to: evmAddress.toString(),
+            id,
+            to: null,
             from: '', // @Todo
             contractAddress: evmAddress.toString(),
-            transactionIndex: event.phase.toNumber(),
-            gasUsed: 0, // @Todo
             logsBloom: '0x', // @Todo
-            blockHash: block.block.hash,
-            transactionHash: event.extrinsic.extrinsic.hash.toHex(),
-            blockNumber: block.block.header.number.toNumber(),
-            confirmations: 4, // @Todo
-            cumulativeGasUsed: 0, // @Todo
-            byzantium: false,
             status: 0,
           }),
           logs,
@@ -86,19 +84,11 @@ export async function handleEvmEvent(event: SubstrateEvent): Promise<void> {
 
         return [
           TransactionReceipt.create({
-            id: `${block.block.header.number.toString()}-${event.extrinsic?.idx ?? NOT_EXIST_TRANSACTION_INDEX}`,
+            id,
             to: evmAddress.toString(),
             from: '', // @Todo
-            contractAddress: evmAddress.toString(),
-            transactionIndex: event.phase.toNumber(),
-            gasUsed: 0, // @Todo
+            contractAddress: null,
             logsBloom: '0x', // @Todo
-            blockHash: block.block.hash,
-            transactionHash: event.extrinsic.extrinsic.hash.toHex(),
-            blockNumber: block.block.header.number.toNumber(),
-            confirmations: 4, // @Todo
-            cumulativeGasUsed: 0, // @Todo
-            byzantium: false,
             status: 0,
           }),
           logs,
@@ -109,13 +99,19 @@ export async function handleEvmEvent(event: SubstrateEvent): Promise<void> {
     return null;
   };
 
-  const ret = processEvent();
+  const ret = processEvent(`${block.block.header.number.toString()}-${event.extrinsic?.idx ?? event.phase.toString()}`);
   if (!ret) {
     logger.debug(`Unsupported event: ${event.event.method}`);
     return;
   }
 
   const [transactionReceipt, logs] = ret;
+  transactionReceipt.blockHash = block.block.hash.toHex(),
+  transactionReceipt.transactionHash = event.extrinsic.extrinsic.hash.toHex(),
+  transactionReceipt.blockNumber = BigInt(block.block.header.number.toNumber()),
+  transactionReceipt.transactionIndex = BigInt(txIdx);
+  transactionReceipt.gasUsed = BigInt(0); // @Todo
+  transactionReceipt.cumulativeGasUsed = BigInt(0); // @Todo
 
   logs.forEach((evmLog, idx) => createLog(transactionReceipt.id, idx, evmLog));
 
