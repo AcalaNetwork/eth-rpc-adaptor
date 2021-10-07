@@ -520,7 +520,7 @@ dataSources:
     startBlock: 2
     mapping:
       handlers:
-        - handler: handleEvent
+        - handler: handleEvmEvent
           kind: substrate/EventHandler
           filter:
             module: evm

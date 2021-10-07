@@ -28,6 +28,8 @@ services:
       - -f=/app
       - --local
       - --subquery-name=acala-evm
+      - --local
+      - --log-level=debug      
 
   graphql-engine:
     image: onfinality/subql-query:latest
